@@ -1,0 +1,10 @@
+[package]
+name = "rty"
+version = "0.1.0"
+authors = ["lukx <admin@lukx.net>"]
+edition = "2018"
+
+[dependencies]
+multiinput = { path = "../multiinput-rust" }
+winapi = { version = "0.3.6", features = ["winuser","libloaderapi","utilapiset"] }
+stopwatch = "0.0.7"
