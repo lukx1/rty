@@ -63,9 +63,9 @@ impl Game {
         use keys::GameKey;
 
         match key_id {
-            KeyId::ScrollLock => Some(GameKey::ScrollLock),
-            KeyId::Numlock => Some(GameKey::Numlock),
-            KeyId::CapsLock => Some(GameKey::Capslock),
+            KeyId::Numpad6 | KeyId::Right => Some(GameKey::ScrollLock),
+            KeyId::Numpad5 | KeyId::Clear => Some(GameKey::Numlock),
+            KeyId::Numpad4 | KeyId::Left => Some(GameKey::Capslock),
             _ => None
         }
     }
@@ -176,7 +176,39 @@ impl Game {
 
     fn shutdown(&mut self) {}
 
+    fn count_down(&self){
+        use keys::{set_key,GameKey::*};
+
+        println!("Counting down");
+
+        let wait_dur = time::Duration::from_millis(750);
+
+        set_key(Capslock,false);
+        set_key(Numlock,false);
+        set_key(ScrollLock,false);
+
+        thread::sleep(wait_dur.clone());
+        set_key(Capslock,true);
+
+        thread::sleep(wait_dur.clone());
+        set_key(Numlock,true);
+
+        thread::sleep(wait_dur.clone());
+        set_key(ScrollLock,true);
+        thread::sleep(wait_dur.clone());
+
+        set_key(Capslock,false);
+        set_key(Numlock,false);
+        set_key(ScrollLock,false);
+    }
+
     fn start(&mut self) {
+        println!("Start");
+
+        self.count_down();
+
+        self.run = true;
+
         for i in 0..self.game_map.as_ref().unwrap().get_content().len() {
             if !self.run {
                 self.shutdown();
@@ -186,8 +218,9 @@ impl Game {
             let note = Rc::new(&self.game_map.as_ref().unwrap().get_content()[i]);
             {
                 self.show_lights(&note);
-                self.get_ks_in_period(self.game_map.as_ref().unwrap().get_speed().clone());
+                self.get_ks_in_period( note.duration_as_time(&self.game_map.as_ref().unwrap().get_speed().clone()));
             }
+
             if !self.are_keys_valid(&self.game_map.as_ref().unwrap().get_content()[i].clone()){
                 self.failed_turn()
             }
